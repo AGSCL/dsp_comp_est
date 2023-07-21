@@ -1,0 +1,31 @@
+*
+#diseño
+!xaringan-themer.css
+#Mardowns y páginas web procesos
+!index.html
+!index.qmd
+!base_senda_fiscalia.rds
+!Trabajo 1.html
+!Trabajo 1.RData
+!Trabajo_1_previo_alt.qmd
+!Trabajo_1_previo.html
+!Trabajo-1_alt.qmd
+# presentación
+!pres_mar_23_poly_final.pdf
+!pres_mar_23_poly_final.html
+!pres_mar_23_poly_final.html
+# paquetes R
+!renv/*
+!renv.lock
+# para librerias python
+!env/*
+!.requirements.txt
+!descarga.png
+# Información en R
+!.gitignore
+!.Rprofile
+!.Rhistory
+!9_Computacion Estadistica,Rproj
+# Formato citación y referencias
+!.revista-medica-de-chile.csl 
+!.libreria_poly.txt # biblitoeca

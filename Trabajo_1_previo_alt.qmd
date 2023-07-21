@@ -1,0 +1,682 @@
+---
+title: "Trabajo 1 (paso previo)"
+description: |
+  Cargar una base de datos de tiempo al evento a cometer un delito que deriva en sentencia definitiva condenatoria, pero condicional al policonsumo a la base (a la admisión).
+date: "`r format(Sys.time(),'%B %d, %Y')`"
+author: "Andrés González Santa Cruz"
+format: 
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true #self-contained
+    #self-contained-math: true #algo pesado
+    smooth-scroll: true
+editor: visual
+---
+
+```{css}
+#| echo: false
+
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+
+```
+
+```{js zoom-jquery, echo = FALSE}
+$(document).ready(function() {
+
+$('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+
+// onClick function for all plots (img's)
+
+$('img:not(.zoomImg)').click(function() {
+$('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+$('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+});
+
+// onClick function for zoomImg
+
+$('img.zoomImg').click(function() {
+$('.zoomDiv').css({opacity: '0', width: '0%'});
+});
+});
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="https://github.com/AGSCL/gine_brechas_pandemia/blob/main/hideOutput.js"></script>
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {
+
+\$chunks = \$('.fold');
+
+\$chunks.each(function () { // add button to source code chunks
+if ( \$(this).hasClass('s') ) {
+    \$('pre.r', this).prepend("\<div class=\\"showopt\\"\>Show Source\</div\>\<br style=\\"line-height:22px;\\"/\>");
+    \$('pre.r', this).children('code').attr('class', 'folded');
+    } // add button to output chunks
+
+    if ( \$(this).hasClass('o') ) {
+        \$('pre:not(.r)', this).has('code').prepend("\<div class=\\"showopt\\"\>Show Output\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre:not(.r)', this).children('code:not(r)').addClass('folded'); // add button to plots
+        \$(this).find('img').wrap('\<pre class=\\"plot\\"\>\</pre\>');
+        \$('pre.plot', this).prepend("\<div class=\\"showopt\\"\>Show Plot\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre.plot', this).children('img').addClass('folded');
+        }
+}); // hide all chunks when document is loaded
+
+\$('.folded').css('display', 'none') // function to toggle the visibility
+\$('.showopt').click(function() {
+        var label = \$(this).html();
+        if (label.indexOf("Show") \>= 0) {
+            \$(this).html(label.replace("Show", "Hide"));
+        } else {
+        \$(this).html(label.replace("Hide", "Show"));
+        }
+
+\$(this).siblings('code, img').slideToggle('fast', 'swing');
+});
+});
+```
+
+```{=html}
+<style type="text/css">
+
+.showopt {
+
+background-color: #004c93; color: #FFFFFF; width: 100px; height: 20px; text-align: center; vertical-align: middle !important; float: right; font-family: sans-serif; border-radius: 8px;
+
+}
+
+.showopt:hover {
+background-color: #dfe4f2;
+color: #004c93;
+
+}
+
+pre.plot {
+background-color: white !important;
+}
+
+.tablelines table, .tablelines td, .tablelines th {
+border: 1px solid black;
+}
+
+.centrado {
+text-align: center;
+}
+
+.table.center {
+margin-left:auto;
+margin-right:auto;
+}
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+overflow-x: auto !important;
+}
+
+pre code {
+word-wrap: normal !important;
+white-space: pre !important;
+}
+
+/*
+pre:not(.sourceCode) {
+white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence */
+font-size: 10px !important;
+line-height: 50% !important;
+}
+body{ /* Normal */
+text-align: justify;
+}
+.superbigimage{
+overflow-y:scroll;
+height:350px;
+white-space: nowrap;
+overflow-x: auto;
+width:100%;
+}
+.superbigimage img{
+overflow-y: scroll;
+overflow-x: hidden;
+}
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+.pandoc-table { /* Should add !important; but it seems no necessary */
+margin-left:auto; /* To center */
+margin-right:auto;
+border-collapse: collapse;
+table-layout: auto;
+font-size: 11px;
+overflow-y: auto;
+max-height:450px !important;
+white-space: nowrap;
+overflow-x: auto;
+width:450px;
+}
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+.pandoc-table caption {
+text-align: left !important;
+font-size: 11px !important;
+}
+
+.center-table {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+overflow-y:scroll;
+height:400px;
+overflow-x: scroll;
+}
+
+.controlly{
+overflow-y:scroll;
+height:350px;
+overflow-x: scroll;
+
+}
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+
+<script>
+function myFunction1() {
+var x = document.getElementById("myDIV");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+
+<script>
+function myFunction2() {
+var x = document.getElementById("myDIV2");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+```
+```{r entorno-python}
+rm(list = ls()) 
+unlink("Trabahjo-1_files", recursive=T)
+unlink("Trabahjo 1_files", recursive=T)
+#fuentes: 
+#https://rpubs.com/georgy_makarov/897844
+path<-paste0(getwd(),'/env')
+
+#Sys.setenv(RETICULATE_PYTHON =  "")
+
+#Sys.setenv(RETICULATE_PYTHON =  Sys.which("python"))
+
+#reticulate::py_config()
+#use_python(paste0(path,"/Scripts/python.exe"))
+
+#Sys.setenv(LD_LIBRARY_PATH =  paste0(path,"/Lib"))
+#Sys.setenv(LD_LIBRARY_PATH_64 =  paste0(path,"/Lib"))
+#instalar paquetes de funcionalidades básicas para tener ubicaciones relativas y acceso a python (reticulate)
+if(!require(reticulate)){install.packages("reticulate")}
+if(!require(rstudioapi)){install.packages("rstudioapi")}
+
+
+invisible("Create env")
+#https://stackoverflow.com/questions/54043607/how-to-set-pyenv-python-for-reticulate
+#Directory H:/Mi unidad/PERSONAL ANDRES/UCH_salud_publica/asignaturas/env is not a Python virtualenv
+#virtualenv_create(envname  = path, packages = c("pip", "statsmodels", "matplotlib", "numpy", "pandas", "scipy"))
+# "C:/Users/andre/anaconda3/python.exe" -m venv "H:/Mi unidad/PERSONAL ANDRES/UCH_salud_publica/asignaturas/9_Computacion_Estadistica/env"
+
+#FUENTES:
+#https://rstudio.github.io/reticulate/articles/versions.html
+#Virtual environment functions are not supported on Windows (the use of conda environments is recommended on Windows).
+
+invisible("Use environment")
+#https://ugoproto.github.io/ugo_r_doc/pdf/reticulate.pdf
+
+
+# tx  <- readLines(paste0(path,"/pyvenv.cfg"))
+# tx[[1]] <- paste0("home = ",gsub('/', '\\', paste0(path,"/Scripts/python.exe"), fixed=T))
+# tx[[3]] <- "version = 3.8.0"
+
+#writeLines(tx, con=paste0(path,"/pyvenv.cfg"))
+
+#H:/Mi unidad/PERSONAL ANDRES/UCH_salud_publica/asignaturas/env/Scripts/python.exe"
+#use_virtualenv(path)
+
+#usar entorno virtual ya creado
+#información sobre entorno virtual
+#py_discover_config()
+#conda_python(envname =  "r-scrublet")
+
+
+# FUENTES
+#https://akrabat.com/creating-virtual-environments-with-pyenv/
+#https://rstudio.github.io/reticulate/reference/install_python.html
+#https://github.com/pyenv/pyenv/wiki#suggested-build-environment
+#https://github.com/pyenv/pyenv
+#https://stackoverflow.com/questions/56755156/reticulate-not-setting-python-path
+#https://github.com/rstudio/reticulate/issues/291#issuecomment-437143751
+#https://github.com/pyenv/pyenv
+#https://github.com/pyenv-win/pyenv-win#installation
+#https://stackoverflow.com/questions/52060867/how-to-use-pip-for-pyenv
+#https://github.com/pyenv/pyenv/issues/2417
+```
+
+```{python, eval=F}
+!pyenv install -l | findstr 3.8
+!pip install --upgrade pyenv-win
+!env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install
+!env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.7.5
+!pyenv build
+```
+
+<br>
+
+# Carga de datos y exploración
+
+## Cargar paquetes
+
+Cargar paquetes
+
+```{r}
+#| message: false
+#| include: false
+#| warning: false
+
+# limpiar completamente el entorno global environment
+
+#Para importar bases
+if(!require(rio)){install.packages("rio")}
+#Para manipular bases de datos
+if(!require(tidyverse)){install.packages("tidyverse")}
+if(!require(tidylog)){install.packages("tidylog")}
+
+#Para tabla 1
+if(!require(tableone)){install.packages("tableone")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(kableExtra)){install.packages("kableExtra")}
+if(!require(DT)){install.packages("DT")}
+#Para explorar relaciones bivariadas
+if(!require(polycor)){install.packages("polycor")}
+if(!require(corrplot)){install.packages("corrplot")}
+#Para modelos de regresión
+if(!require(jtools)){install.packages("jtools")}
+#Para cargar paquetes
+if(!require(pacman)){install.packages("pacman")}
+#Para imputar, cargo los paqeutes con la función p_load, y en caso que no encuentre dicho paquete, instalo
+pacman::p_load(missRanger, missForest, install=T)
+#Para analizar supervivencia
+pacman::p_load(survminer, survcomp, survRM2, flexsurv, mstate, rms, install=T)
+#Para diseño de encuestas complejas o ponderación
+if(!require(survey)){install.packages("survey")}
+#para manipular tiempo
+if(!require(lubridate)){install.packages("lubridate")}
+if(!require(MatchIt)){install.packages("MatchIt")}
+if(!require(cobalt)){install.packages("cobalt")}
+if(!require(quickmatch)){install.packages("quickmatch")}
+
+```
+
+Luego cargamos la base de datos `base_fiscalia.dta`
+
+```{r models-matching, echo=T, fig.align='center', message=F, warning=F, error=T, eval=T}
+tryCatch(
+  base_senda_fiscalia<<- rio::import("C:/Users/CISS Fondecyt/Mi unidad/Alvacast/SISTRAT 2022 (github)/fiscalia_mariel_feb_2023_match_SENDA_miss.dta"), 
+  error= function(e){
+    base_senda_fiscalia<<-rio::import("E:/Mi unidad/Alvacast/SISTRAT 2022 (github)/fiscalia_mariel_feb_2023_match_SENDA_miss.dta")
+  }
+)
+paste0("Base de datos original: ", format(nrow(base_senda_fiscalia),big.mark="."), " pacientes")
+
+```
+
+Esta base de datos está compuesta por registros de sujetos del SENDA del 2010 al 2019, más registros de delitos imputados a estas personas (si los hay) en el mismo periodo mediante solicitud a Fiscalía. La fecha de obtención de la base de datos (censura a la derecha) fue definida como el 13 de Noviembre de 2019. Se considera el primer tratamiento registrado por cada paciente en las fechas de seguimiento (2010-2019). Las variables a estudiar son las siguientes:
+
+-   HASH (RUT encriptado en formato MD5 más un Salt-Key) `hash_key`
+-   **Exposición**: Trastornos por consumo de sustancias concurrentes (consumo de varias sustancias) (\*\*PSU\*\*) al momento de ser admitido `policonsumo`
+-   **Resultado**: Motivo de egreso (completar=1; abandono temprano o \<90=2; abandono tardío o \>=90 días=3) `motivodeegreso_mod_imp_rec` . Consideraremos un evento el completar el tratamiento.
+    -   El tiempo-al-resultado se generará mediante la resta entre la edad al egreso `edad_al_egres_imp` y la edad al ingreso a tratamiento `edad_al_ing_1` , de producirse el evento. En caso contrario, se ingresará la edad al tiempo de censura.
+-   Alternativamente, se estudiará la relación entre policonsumo y la comisión de un delito en calidad imputado por el que recibe sentencia definitiva condenatoria después de haber ingresado a tratamiento `offender_d` (1= "SI"). Consideraremos un evento el cometer un delito.
+    -   El tiempo al evento se generará mediante la resta entre la edad al cometer el delito (`age_offending_imp`) edad al ingreso a tratamiento `edad_al_ing_1`, de producirse el evento. En caso contrario, se ingresará la edad al tiempo de censura.
+-   El tiempo al la fecha de censura se construirá con la edad al momento de censura administrativa `age_at_censor_date`
+
+Se descartan tiempos al evento inferiores a la fecha de admisión, quedando un total de casos.
+
+```{r}
+base_senda_fiscalia<-
+base_senda_fiscalia %>% dplyr::mutate(time= edad_al_egres_imp-edad_al_ing_1 ) %>%  dplyr::filter(time>0) %>% dplyr::select(-time)
+```
+
+```{r}
+#rcs(edad_al_ing_1, 4) + sex + edad_ini_cons + escolaridad_rec + condicion_ocupacional_corr + num_hijos_mod_joel_bin + tenencia_de_la_vivienda_mod + macrozona + n_off_vio + n_off_acq + n_off_sud + n_off_oth + dg_cie_10_rec + dg_trs_cons_sus_or + clas_r + porc_pobr + sus_ini_mod_mvv + ano_nac_corr + con_quien_vive_joel + fis_comorbidity_icd_10  
+
+#etiquetamos las variables: 
+attr(base_senda_fiscalia$hash_key, "label") <- "HASH (RUT encriptado en formato MD5 más un Salt-Key)" 
+attr(base_senda_fiscalia$policonsumo, "label") <- "Trastornos por consumo de sustancias concurrentes (consumo de varias sustancias)" 
+attr(base_senda_fiscalia$edad_al_ing_1, "label") <- "Edad (ingreso al tratamiento)"
+attr(base_senda_fiscalia$motivodeegreso_mod_imp_rec, "label") <- "Motivo de egreso (1= Completar; 2= Abandono temprano; 3= Abandono tardío)"
+attr(base_senda_fiscalia$edad_al_egres_imp, "label") <- "Edad al egreso de tratamiento"
+attr(base_senda_fiscalia$offender_d , "label") <- "Delito cometido (Perdido= no registra delito)"
+attr(base_senda_fiscalia$age_offending_imp, "label") <- "Edad de comisión de delito"
+attr(base_senda_fiscalia$sex, "label") <- "Sexo" 
+attr(base_senda_fiscalia$edad_ini_cons, "label") <- "Edad de inicio del consumo de sustancias" 
+attr(base_senda_fiscalia$escolaridad_rec, "label") <- "Nivel educativo" 
+attr(base_senda_fiscalia$condicion_ocupacional_corr, "label") <- "Condición ocupacional corregida" 
+attr(base_senda_fiscalia$num_hijos_mod_joel_bin, "label") <- "Número de hijos (dicotomizado)"
+attr(base_senda_fiscalia$tenencia_de_la_vivienda_mod, "label") <- "Situación de vivienda (estatus de tenencia)"
+attr(base_senda_fiscalia$macrozona, "label") <- "Macrozona administrativa en Chile"
+attr(base_senda_fiscalia$n_off_vio, "label") <- "Delitos violentos (previos al tratamiento)" 
+attr(base_senda_fiscalia$n_off_acq, "label") <- "Delitos de adquisición (previos al tratamiento)" 
+attr(base_senda_fiscalia$n_off_sud, "label") <- "Delitos relacionados con sustancias (previos al tratamiento)" 
+attr(base_senda_fiscalia$n_off_oth, "label") <- "Otros delitos (previos al tratamiento)" 
+attr(base_senda_fiscalia$dg_cie_10_rec, "label") <- "Comorbilidad psiquiátrica (CIE-10) (1= Nada)" 
+attr(base_senda_fiscalia$dg_trs_cons_sus_or, "label") <- "Gravedad del trastorno por consumo de sustancias (estatus de dependencia)" 
+attr(base_senda_fiscalia$clas_r, "label") <- "Clasificación socioeconómica" 
+attr(base_senda_fiscalia$porc_pobr, "label") <- "Porcentaje de personas en pobreza"
+attr(base_senda_fiscalia$sus_ini_mod_mvv, "label") <- "Sustancia principal (diagnóstico inicial)" 
+attr(base_senda_fiscalia$ano_nac_corr, "label") <- "Año de nacimiento corregido" 
+attr(base_senda_fiscalia$con_quien_vive_joel, "label") <- "Estado de convivencia (recodificado) (Con pareja/hijos, Con familia de origen, Solo, Otros)" 
+attr(base_senda_fiscalia$fis_comorbidity_icd_10, "label") <- "Comorbilidad física (CIE-10)"
+
+```
+
+# Balance
+
+Debido a la dificultad de compartir información sobre la base de datos original, generamos una submuestra que permitiera responder a nuestra pregunta de investigación sobre la relación entre el policonsumo a la admisión y el tiempo a abandonar el tratamiento.
+
+Se ajustó por las siguientes variables:
+
+-   Edad (ingreso al tratamiento) suavizado mediante 4 nodos `edad_al_ing_1` \*
+-   Sexo `sex`
+-   Edad de inicio del consumo de sustancias `edad_ini_cons`
+-   Nivel educativo (3= Primaria o menos; 2= Secundaria o menos; 1=Más que secundaria) `escolaridad_rec`
+-   Condición ocupacional corregida (1= Empleado, 2= Inactivo, 3= Buscando por primera vez, 4= Sin actividad, 5= No busca; 6= Desempleado) `condicion_ocupacional_corr`
+-   Sustancia principal (ingreso al tratamiento) `sus_principal_mod`
+-   Número de hijos (dicotomizado: 1= 1 o más hijos) `num_hijos_mod_joel_bin`
+-   Situación de vivienda (estatus de tenencia; 1= asentamiento ilegal, 2= otros, 3= Dueño/herencia/paga dividendo; 4= Arrendando; 5= Allegado) `tenencia_de_la_vivienda_mod`
+-   Macrozona administrativa en Chile (1= Centro; 2= Norte; 3= Sur) `macrozona`
+-   Delitos violentos (previos al tratamiento; 1= Uno o más) `n_off_vio`
+-   Delitos de adquisición (previos al tratamiento; 1= Uno o más) `n_off_acq`
+-   Delitos relacionados con sustancias (previos al tratamiento; 1= Uno o más) `n_off_sud`
+-   Otros delitos (previos al tratamiento; 1= Uno o más) `n_off_oth`
+-   Comorbilidad psiquiátrica (CIE-10) (1= Nada; 2= En estudio; 3= Comorbilidad)`dg_cie_10_rec`
+-   Gravedad del trastorno por consumo de sustancias (estatus de dependencia) `dg_trs_cons_sus_or`
+-   Clasificación socioeconómica (1= Urbana; 2= Mixta; 3= Rural) `clas_r`
+-   Porcentaje de personas en pobreza `porc_pobr`
+-   Sustancia principal (diagnóstico inicial) `sus_ini_mod_mvv`
+-   Año de nacimiento corregido `ano_nac_corr`
+-   Estado de convivencia (recodificado) (Con pareja/hijos, Con familia de origen, Solo, Otros) `con_quien_vive_joel`
+-   Comorbilidad física (CIE-10) (1= Nada; 2= En estudio; 3= Comorbilidad) `fis_comorbidity_icd_10`
+
+(\*) En un estudio previo con los mismos datos, el modelo que encontró mejor ajuste a los datos sin violar el supuesto de linealidad de la variables llevó a cabo dicha transformación. Dado que el objetivo de estudio está puesto en el policonsumo y su impacto sobre completar el tratamiento, se sacrificó interpretabilidad de la variable por el ajuste del modelo.
+
+Exploramos los datos:
+
+::: center-table
+```{r desc, echo=T, fig.align='center', message=T, error=T, eval=T}
+#controlly
+# Treatment status (Early dropout/Late dropout/Treatment completion) 
+
+as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
+                          showAllLevels = TRUE, ...) -> x)
+  y <- as.data.frame(x)
+  y$characteristic <- dplyr::na_if(rownames(x), "")
+  y <- y %>%
+  fill(characteristic, .direction = "down") %>%
+  select(characteristic, everything())
+  rownames(y) <- NULL
+  y}
+
+
+#to format rows in bold
+format_cells <- function(df, rows ,cols, value = c("italics", "bold", "strikethrough")){
+
+  # select the correct markup
+  # one * for italics, two ** for bold
+  map <- setNames(c("*", "**", "~~"), c("italics", "bold", "strikethrough"))
+  markup <- map[value]  
+
+  for (r in rows){
+    for(c in cols){
+
+      # Make sure values are not factors
+      df[[c]] <- as.character( df[[c]])
+
+      # Update formatting
+      df[r, c] <- ifelse(nchar(df[r, c])==0,"",paste0(markup, gsub(" ", "", df[r, c]), markup))
+    }
+  }
+
+  return(df)
+}
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+vars_cov<-c("motivodeegreso_mod_imp_rec",  "edad_al_ing_1", "sex", "edad_ini_cons", "escolaridad_rec", "condicion_ocupacional_corr",  "num_hijos_mod_joel_bin", "tenencia_de_la_vivienda_mod", "macrozona", "n_off_vio", "n_off_acq",  "n_off_sud", "n_off_oth", "dg_cie_10_rec", "dg_trs_cons_sus_or", "clas_r", "porc_pobr", "sus_ini_mod_mvv", "ano_nac_corr", "con_quien_vive_joel", "fis_comorbidity_icd_10")
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+#to format rows in bold
+format_cells <- function(df, rows ,cols, value = c("italics", "bold", "strikethrough")){
+
+  # select the correct markup
+  # one * for italics, two ** for bold
+  map <- setNames(c("*", "**", "~~"), c("italics", "bold", "strikethrough"))
+  markup <- map[value]  
+
+  for (r in rows){
+    for(c in cols){
+
+      # Make sure values are not factors
+      df[[c]] <- as.character( df[[c]])
+
+      # Update formatting
+      df[r, c] <- ifelse(nchar(df[r, c])==0,"",paste0(markup, gsub(" ", "", df[r, c]), markup))
+    }
+  }
+
+  return(df)
+}
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+tbone_desc<-
+CreateTableOne(vars=c(vars_cov), data=  base_senda_fiscalia %>% dplyr::mutate(
+    sex = case_when(
+      sex == "1" ~ "Male",
+      sex == "2" ~ "Female",
+      TRUE ~ "Unknown"
+    ),
+    escolaridad_rec = case_when(
+      escolaridad_rec == 3 ~ "Primaria o menos",
+      escolaridad_rec == 2 ~ "Secundaria o menos",
+      escolaridad_rec == 1 ~ "Más que secundaria",
+      TRUE ~ "Unknown"
+    ),
+    condicion_ocupacional_corr = case_when(
+      condicion_ocupacional_corr == 1 ~ "Empleado",
+      condicion_ocupacional_corr == 2 ~ "Inactivo",
+      condicion_ocupacional_corr == 3 ~ "Buscando por primera vez",
+      condicion_ocupacional_corr == 4 ~ "Sin actividad",
+      condicion_ocupacional_corr == 5 ~ "No busca",
+      condicion_ocupacional_corr == 6 ~ "Desempleado",
+      TRUE ~ "Unknown"
+    ),
+    num_hijos_mod_joel_bin = recode(num_hijos_mod_joel_bin, "1" = "Uno o más hijos", "0"= "Sin hijos"),
+    tenencia_de_la_vivienda_mod = recode(tenencia_de_la_vivienda_mod,
+                                          "1" = "Asentamiento ilegal",
+                                          "2" = "Otro",
+                                          "3" = "Propietario/dividendo",
+                                          "4" = "Arrendando",
+                                          "5" = "Allegado"),
+    macrozona = recode(macrozona, "1" = "Centro", "2" = "Norte", "3" = "Sur"),
+    n_off_vio = recode(n_off_vio, "2" = "Uno o más delitos violentos", "1"= "Sin registro" ),
+    n_off_acq = recode(n_off_acq, "2" = "Uno o más delitos adquisitivos", "1"= "Sin registro"),
+    n_off_sud = recode(n_off_sud, "2" = "Uno o más delitos ligados a sustanicas", "1"= "Sin registro"),
+    n_off_oth = recode(n_off_oth, "2" = "Uno o más delitos (otros)", "1"= "Sin registro"),
+    dg_cie_10_rec = recode(dg_cie_10_rec, 
+                           "1" = "Sin comorbilidad",
+                           "2" = "En estudio",
+                           "3" = "Comorbilidad"),
+    clas_r = recode(clas_r, 
+                    "1" = "Urbano",
+                    "2" = "Mixto",
+                    "3" = "Rural"),
+        clas_r = recode(sus_ini_mod_mvv, 
+                    "Cocaine hydrochloride" = "Cocaína",
+                    "Cocaine paste" = "Pasta base",
+                    "Marijuana" = "Marihuana",
+                    "Other" = "Otro"),
+     con_quien_vive_joel = recode(con_quien_vive_joel, "With couple/children"= "Con pareja/hijos", "With family of origin"= "Con familia de orígen", "Alone" = "Solo", "Others"= "Otros"),
+    fis_comorbidity_icd_10 = recode(fis_comorbidity_icd_10, 
+                           "1" = "Sin comorbilidad",
+                           "2" = "En estudio",
+                           "3" = "Comorbilidad"), 
+    # Add here more variables using the same pattern...
+  ), factorVars = setdiff(vars_cov, c("motivodeegreso_mod_imp_rec","edad_al_ing_1", "edad_ini_cons","ano_nac_corr", "porc_pobr")), smd=F, strata="policonsumo", addOverall = T, includeNA=T, test=F)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+as.data.frame.TableOne(tbone_desc, smd=F, nonnormal= T)%>% 
+  dplyr::mutate(char2=characteristic) %>% 
+  tidyr::fill(char2) %>% 
+  dplyr::select(char2,everything()) %>% 
+  dplyr::mutate(level=ifelse(is.na(level),"[Missing]",level)) %>% 
+  dplyr::mutate(char2=dplyr::case_when(characteristic=="NA"~NA_character_,T~as.character(characteristic))) %>% 
+  format_cells(1, 1:length(names(.)), "bold") %>%
+  dplyr::select(-1) %>% 
+  knitr::kable(size=10, format="markdown",caption= "Resumen descriptivos, según  PSU(0) y PSU (1)", escape=T)
+#kable(size=10, format="html",caption= "Resumen descriptivos, según  PSU(0) y PSU (1)") %>%     kableExtra::kable_classic()
+```
+:::
+
+## Generar una submuestra
+
+::: controlly
+```{r}
+set.seed(2125)
+m.out <- MatchIt::matchit(policonsumo ~ rcs(edad_al_ing_1, 4) + sex + edad_ini_cons + escolaridad_rec + condicion_ocupacional_corr + num_hijos_mod_joel_bin + tenencia_de_la_vivienda_mod + macrozona + n_off_vio + n_off_acq + n_off_sud + n_off_oth + dg_cie_10_rec + dg_trs_cons_sus_or + clas_r + porc_pobr + sus_ini_mod_mvv + ano_nac_corr + con_quien_vive_joel + fis_comorbidity_icd_10,
+  data = base_senda_fiscalia, method = "quick", discard="none", time=60*60, caliper=.1, estimand="ATE", subclass = 10) #="gurobi", )#replace = TRUE, 
+m.out
+
+m.out2 <- matchit(policonsumo ~ rcs(edad_al_ing_1, 4) + sex + edad_ini_cons + escolaridad_rec + condicion_ocupacional_corr + num_hijos_mod_joel_bin + tenencia_de_la_vivienda_mod + macrozona + n_off_vio + n_off_acq + n_off_sud + n_off_oth + dg_cie_10_rec + dg_trs_cons_sus_or + clas_r + porc_pobr + sus_ini_mod_mvv + ano_nac_corr + con_quien_vive_joel + fis_comorbidity_icd_10, 
+                  data = base_senda_fiscalia, 
+                  method = "nearest", 
+                  discard = "both")
+
+m.out2
+
+m.out3 <- matchit(policonsumo ~ rcs(edad_al_ing_1, 4) + sex + edad_ini_cons + escolaridad_rec + condicion_ocupacional_corr + num_hijos_mod_joel_bin + tenencia_de_la_vivienda_mod + macrozona + n_off_vio + n_off_acq + n_off_sud + n_off_oth + dg_cie_10_rec + dg_trs_cons_sus_or + clas_r + porc_pobr + sus_ini_mod_mvv + ano_nac_corr + con_quien_vive_joel + fis_comorbidity_icd_10, 
+                  data = base_senda_fiscalia, 
+                  method = "nearest", 
+                  discard = "both",
+                  caliper = .01, 
+                  standardize = T)
+
+m.out3
+```
+:::
+
+Comparamos el balance logrado por cada uno de los modelos
+
+::: controlly
+```{r contrast-weights, echo=T, fig.align='center', message=T, error=T, eval=T}
+cobalt::bal.tab(m.out, un = TRUE, m.threshold = .1, 
+        v.threshold = 2)
+
+cobalt::bal.tab(m.out2, un = TRUE, m.threshold = .1, 
+        v.threshold = 2)
+
+cobalt::bal.tab(m.out3, un = TRUE, m.threshold = .1, 
+        v.threshold = 2)
+```
+:::
+
+Seleccionamos el método de pareamiento correspondiente a la base de datos `m.out3`
+
+Hacemos un gráfico "love" para ver el balance en las covariables.
+
+```{r}
+plot(
+cobalt::bal.tab(m.out3, un = TRUE, m.threshold = .1, 
+        v.threshold = 2))
+```
+
+Exportamos los datos en `base_senda_fiscalia.tsv`.
+
+```{r, match-muestra-final, echo=T, fig.align='center', message=T, error=T, eval=T}
+saveRDS(base_senda_fiscalia %>% dplyr::slice(as.numeric(m.out3$match.matrix)) %>%
+  dplyr::select(edad_al_ing_1, policonsumo, edad_al_egres_imp, motivodeegreso_mod_imp_rec, age_offending_imp, offender_d, age_at_censor_date),
+"base_senda_fiscalia.rds")
+#%>%   rio::export("base_senda_fiscalia.tsv")
+```
+
+# Información de sesión
+
+```{r session-info, echo=T, error=T, message=TRUE, paged.print=TRUE}
+message(paste0("Librería R: ", Sys.getenv("R_LIBS_USER")))
+message(paste0("Fecha: ",Sys.Date()))
+message(paste0("Contexto editor: ", path))
+
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Paquete' = 2, 'Versión'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Paquetes en R')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+
+
+ py_list_packages()%>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Paquete' = 2, 'Versión'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Paquetes en Python')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
