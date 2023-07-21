@@ -1,0 +1,29 @@
+---
+name: "comp_est_dsp_ags"
+title: "Presentación trabajo Computación Estadística"
+lang: es-ES
+subject: R Markdown
+author:
+  - first_name: "Andrés"
+    last_name: "González-Santa Cruz"
+    url: https://github.com/AGSCL
+    affiliation: Núcleo Milenio de Drogas y Estudiante Doctorado Salud Pública
+    affiliation_url: 
+    email: gonzalez.santacruz.andres@gmail.com
+    orcid_id: 0000-0002-5166-9121
+description: |
+ Repositorio trabajo 'Policonsumo, completar tratamiento y contacto con el sistema de justicia: un análisis multiestado de tratamientos de trastornos por uso de sustancias entre 2010-2019 en Chile' 
+base_url: https://beta.rstudioconnect.com/content/3776/
+creative_commons: CC BY
+output: 
+  distill::distill_article:
+    theme: theme.css
+---
+
+- [Presentación](pres_mar_23_poly_final.html)
+
+- [Paso previo](Trabajo_1_previo.html)
+
+- [Borrador de artículo](Trabajo-1.html)
+
+  

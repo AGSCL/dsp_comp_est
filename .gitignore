@@ -1,9 +1,14 @@
 *
+# nunca cargar 
+base_fiscalia.dta
 #diseño
 !xaringan-themer.css
+!zoom.html
+!hideOutput.js
+!theme.css
 #Mardowns y páginas web procesos
 !index.html
-!index.qmd
+!index.Rmd
 !base_senda_fiscalia.rds
 !Trabajo 1.html
 !Trabajo 1.RData
@@ -29,3 +34,4 @@
 # Formato citación y referencias
 !.revista-medica-de-chile.csl 
 !.libreria_poly.txt # biblitoeca
+.Rproj.user
