@@ -35,3 +35,9 @@ base_fiscalia.dta
 !.revista-medica-de-chile.csl 
 !.libreria_poly.txt # biblitoeca
 .Rproj.user
+#figuras presentación
+!Logo nDP_monotono_isotipo.png
+!qr_poly.png
+
+!probs_aj_multistate.dta
+!los_aj_multistate.dta
