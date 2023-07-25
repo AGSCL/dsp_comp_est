@@ -26,4 +26,6 @@ output:
 
 - [Borrador de artículo](Trabajo-1.html)
 
+- [Workspace de la presentación](https://posit.cloud/content/6240060)
+
   
